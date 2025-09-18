@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matching Game - Junior English</title>
+  <style>
+    body { 
+      font-family: 'Comic Sans MS', sans-serif; 
+      text-align: center; 
+      background: linear-gradient(135deg, #f9d976, #f39f86); 
+      margin: 0; 
+      padding: 0; 
+      overflow-x: hidden; 
+      position: relative; 
+    }
+    
+    h1 { 
+      color: #fff; 
+      text-shadow: 2px 2px 4px #000; 
+      font-size: 1.5em; 
+      margin-top: 20px;
+    }
+    
+    #instructions {
+      font-size: 1.2em;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    /* --- Welcome Screen --- */
+    #welcomeScreen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #a5f3fc, #fbbfbc, #fde68a);
+      display: flex; /* Màn hình này luôn hiển thị khi mới vào */
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      color: #0f172a;
+      font-size: 28px;
+      text-align: center;
+      overflow: hidden;
+    }
+    #welcomeScreen h2 {
+      font-size: 2.5em;
+      color: #f472b6;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    #welcomeScreen input {
+      padding: 14px 28px;
+      font-size: 20px;
+      border: none;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      width: 280px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    #welcomeScreen button {
+      margin-top: 20px;
+      padding: 14px 28px;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+      color: #0f172a;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #welcomeScreen button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    /* --- Game Area --- */
+    #gameArea { 
+      display: none; /* Ẩn game area khi mới vào */
+      width: 100%; 
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .words, .images { 
+      display: flex; 
+      justify-content: center; 
+      flex-wrap: wrap; 
+      margin-bottom: 20px; 
+    }
+    
+    .word { 
+      margin: 8px; 
+      padding: 12px; 
+      border-radius: 12px; 
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
+      cursor: pointer; 
+      font-weight: bold; 
+      transition: transform 0.2s, background 0.2s; 
+      font-size: 22px; 
+      min-width: 80px; 
+      text-align: center; 
+    }
+    .word:hover { 
+      transform: scale(1.05); 
+    }
+    
+    .image-box { 
+      margin: 8px; 
+      padding: 10px; 
+      border: 2px dashed #fff; 
+      border-radius: 12px; 
+      min-height: 120px; 
+      background: rgba(255, 255, 255, 0.5); 
+      transition: transform 0.2s; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      min-width: 100px; 
+      cursor: pointer;
+    }
+    .image-box img { 
+      width: 100%; 
+      height: auto; 
+      max-height: 120px; 
+      object-fit: contain; 
+    }
+    
+    .correct { 
+      border: 3px solid green; 
+      transform: scale(1.05); 
+    }
+
+.correct img {
+  opacity: 0.2;               /* Làm mờ ảnh khi ghép đúng */
+  transition: opacity 0.8s ease; /* Hiệu ứng mờ dần mượt */
+}
+
+    .wrong { 
+      border: 3px solid red; 
+      transform: scale(1.05); 
+    }
+    
+    .selected { 
+      transform: scale(1.1); 
+      box-shadow: 0 0 15px yellow; 
+    }
+    
+    .matched-word { 
+      margin-top: 6px; 
+      font-weight: bold; 
+      color: #000; 
+      font-size: 16px; 
+    }
+    
+    #scoreBox { 
+      position: absolute; 
+      top: 20px; 
+      right: 20px; 
+      font-size: 20px; 
+      font-weight: bold; 
+      background: rgba(255, 255, 255, 0.7); 
+      padding: 5px 12px; 
+      border-radius: 10px; 
+      box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3); 
+    }
+
+    /* --- End Screen --- */
+    #endScreen {
+      display: none; /* Ẩn màn hình kết thúc khi mới vào */
+      position: fixed;
+      inset: 0;
+
+  background: rgba(255, 255, 255, 0.5);  /* Nền mờ trong suốt */
+  backdrop-filter: blur(0.5px);            /* Làm mờ nền phía sau */
+  -webkit-backdrop-filter: blur(0.5px);    /* Hỗ trợ Safari */
+
+
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #endTitle { 
+      font-size: 3em; 
+      color: #f472b6; 
+      text-align: center; 
+      margin-bottom: 10px; 
+    }
+    #endMessage { 
+      font-size: 2.5em; 
+      color: #34d399; 
+      text-align: center; 
+      margin-bottom: 20px; 
+      word-wrap: break-word; 
+    }
+    #finalScore {
+      font-size: 3em; 
+      font-weight: bold; 
+      margin-bottom: 20px; 
+      color: #d946ef; 
+      text-align: center; 
+    }
+    #playAgainBtn { 
+      padding: 15px 40px; 
+      font-size: 22px; 
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9); 
+      color: #0f172a; 
+      border: none; 
+      border-radius: 12px; 
+      cursor: pointer; 
+      font-weight: bold; 
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #playAgainBtn:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    canvas { 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      pointer-events: none; 
+      z-index: 1001; 
+    }
+    
+/* Hiệu ứng viền cầu vồng nhấp nháy */
+@keyframes rainbowBlink {
+  0% { box-shadow: 0 0 15px red; }
+  20% { box-shadow: 0 0 15px orange; }
+  40% { box-shadow: 0 0 15px yellow; }
+  60% { box-shadow: 0 0 15px green; }
+  80% { box-shadow: 0 0 15px blue; }
+  100% { box-shadow: 0 0 15px violet; }
+}
+
+.selected {
+  transform: scale(1.1);
+  animation: rainbowBlink 1s infinite;
+}
+
+
+    @media (max-width: 600px) {
+      .word { 
+        font-size: 18px; 
+        min-width: 60px; 
+        padding: 10px; 
+      }
+      .image-box img { 
+        max-height: 80px; 
+      }
+      .image-box { 
+        min-width: 80px; 
+        min-height: 100px; 
+      }
+      #welcomeScreen h2 { font-size: 2em; }
+      #welcomeScreen input { width: 200px; font-size: 18px; }
+      #welcomeScreen button { font-size: 18px; padding: 12px 24px; }
+      #endTitle { font-size: 2em; }
+      #endMessage { font-size: 1.8em; }
+      #finalScore { font-size: 2em; }
+      #playAgainBtn { 
+        font-size: 16px; 
+        padding: 10px 20px; 
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="welcomeScreen">
+  <h2>🎉 Junior English chào mừng các em 🎉</h2>
+  <input type="text" id="studentName" placeholder="Nhập tên em...">
+  <button id="startBtn">Bắt đầu</button>
+</div>
+
+<div id="gameArea">
+  <h1>🎉 MATCH GAME - Junior English, 113 Lê Trọng Tấn, Đà Nẵng-0935.994359 🎉</h1>
+  <p id="instructions">Click a word or picture first, then click the matching pair!</p>
+  <div id="scoreBox">Điểm: 100</div>
+  <div class="words" id="words"></div>
+  <div class="images" id="images"></div>
+</div>
+
+<div id="endScreen">
+  <div id="endTitle">🎉 Junior English 🎉</div>
+  <div id="endMessage"></div>
+  <div id="finalScore"></div>
+  <button id="playAgainBtn">Chơi lại</button>
+</div>
+
+<audio id="bg-music" src="sound/background music.mp3" loop></audio>
+<audio id="correctSound" src="sound/true.mp3"></audio>
+<audio id="wrongSound" src="sound/false.mp3" preload="auto"></audio>
+
+<canvas id="balloonCanvas"></canvas>
+
+<script>
+  const juniorword = ['building','cap','helmet','map','noisy','quick','quiet','racket','road','shopping centre','slow','tall','thousand','ticket'];
+  const wordsContainer = document.getElementById('words');
+  const imagesContainer = document.getElementById('images');
+  const correctSound = document.getElementById('correctSound');
+  const wrongSound = document.getElementById('wrongSound');
+  const scoreBox = document.getElementById("scoreBox");
+  const bgMusic = document.getElementById("bg-music");
+
+  // Các element cho màn hình chào mừng và kết thúc
+  const welcomeScreen = document.getElementById('welcomeScreen');
+  const startBtn = document.getElementById('startBtn');
+  const studentNameInput = document.getElementById('studentName');
+  const gameArea = document.getElementById('gameArea');
+  const endScreen = document.getElementById('endScreen');
+  const playAgainBtn = document.getElementById('playAgainBtn');
+  const endMessage = document.getElementById('endMessage');
+  const finalScoreDiv = document.getElementById("finalScore");
+
+  let selectedWord = null;
+  let selectedImage = null;
+  let score = 100;
+  let studentName = "";
+
+  function randomColor(){
+    const colors = ['#FFADAD','#FFD6A5','#FDFFB6','#CAFFBF','#9BF6FF','#A0C4FF','#BDB2FF','#FFC6FF'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function shuffleArray(array){
+    for(let i = array.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function createWordsAndImages(){
+    wordsContainer.innerHTML = '';
+    imagesContainer.innerHTML = '';
+    selectedWord = null;
+    selectedImage = null;
+    score = 100;
+    scoreBox.textContent = "Điểm: " + score;
+
+    const shuffledWords = [...juniorword];
+    shuffleArray(shuffledWords);
+    shuffledWords.forEach(name => {
+      const wordDiv = document.createElement('div');
+      wordDiv.classList.add('word');
+      wordDiv.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+      wordDiv.dataset.match = name;
+      wordDiv.style.backgroundColor = randomColor();
+      wordsContainer.appendChild(wordDiv);
+    });
+
+    const shuffledImages = [...juniorword];
+    shuffleArray(shuffledImages);
+    shuffledImages.forEach(name => {
+      const boxDiv = document.createElement('div');
+      boxDiv.classList.add('image-box');
+      boxDiv.dataset.match = name;
+      boxDiv.style.backgroundColor = randomColor();
+      const img = document.createElement('img');
+      img.src = `flashcard/${name}.png`;
+      img.onerror = () => { img.src = `flashcard/${name}.jpg`; };
+      img.alt = name;
+      boxDiv.appendChild(img);
+      imagesContainer.appendChild(boxDiv);
+    });
+  }
+
+  function checkMatch(){
+    if(!selectedWord || !selectedImage) return;
+
+    if(selectedWord.dataset.match === selectedImage.dataset.match){
+      correctSound.play();
+      selectedImage.classList.add('correct');
+      const matchedWord = document.createElement('div');
+      matchedWord.classList.add('matched-word');
+      matchedWord.textContent = selectedWord.textContent;
+      selectedImage.appendChild(matchedWord);
+      selectedWord.remove();
+      
+      if(wordsContainer.children.length === 0){
+        setTimeout(showEndScreen, 500);
+      }
+    } else {
+      wrongSound.volume = 0.3;
+      wrongSound.play();
+      selectedWord.classList.add('wrong');
+      selectedImage.classList.add('wrong');
+      score = Math.max(0, score - 1);
+      scoreBox.textContent = "Điểm: " + score;
+      
+      setTimeout(() => {
+        if(selectedWord) selectedWord.classList.remove('wrong');
+        if(selectedImage) selectedImage.classList.remove('wrong');
+      }, 1000);
+    }
+
+    if(selectedWord) selectedWord.classList.remove('selected');
+    if(selectedImage) selectedImage.classList.remove('selected');
+    selectedWord = null;
+    selectedImage = null;
+  }
+
+  // Event Listeners
+  wordsContainer.addEventListener('click', e => {
+    if(!e.target.classList.contains('word')) return;
+    if(selectedWord) selectedWord.classList.remove('selected');
+    selectedWord = e.target;
+    selectedWord.classList.add('selected');
+    checkMatch();
+  });
+  
+  imagesContainer.addEventListener('click', e => {
+    const box = e.target.closest('.image-box');
+    if(!box) return;
+    if(selectedImage) selectedImage.classList.remove('selected');
+    selectedImage = box;
+    selectedImage.classList.add('selected');
+    checkMatch();
+  });
+  
+  startBtn.onclick = () => {
+    studentName = studentNameInput.value.trim();
+    if(!studentName) {
+      alert("Vui lòng nhập tên trước khi chơi!");
+      return;
+    }
+    welcomeScreen.style.display = 'none';
+    gameArea.style.display = 'block';
+    createWordsAndImages();
+    bgMusic.volume = 0.5;
+    bgMusic.play().catch(e => console.log("Nhạc bị chặn"));
+  };
+
+  playAgainBtn.onclick = () => {
+    endScreen.style.display = 'none';
+    welcomeScreen.style.display = 'flex';
+    studentNameInput.value = "";
+  };
+
+  function showEndScreen(){
+    //gameArea.style.display = 'none';
+    endScreen.style.display = 'flex';
+    endMessage.textContent = `Chúc mừng ${studentName}!`;
+    finalScoreDiv.textContent = `Điểm của em: ${score}`;
+    launchBalloons();
+  }
+
+  // Khởi tạo âm thanh
+  document.body.addEventListener("click", () => {
+    wrongSound.play().then(() => { wrongSound.pause(); wrongSound.currentTime = 0; }).catch(e => console.log("Buzz bị chặn"));
+  }, { once: true });
+
+  // Hiệu ứng bóng bay
+  const canvas = document.getElementById("balloonCanvas");
+  const ctx = canvas.getContext("2d");
+  function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+  let balloons = [];
+  function createBalloon(){
+    balloons.push({ x: Math.random() * canvas.width, y: canvas.height + 50, radius: 20 + Math.random() * 15, color: `hsl(${Math.random() * 360}, 80%, 60%)`, speed: 1 + Math.random() * 2 });
+  }
+  function animateBalloons(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    balloons.forEach((b, i) => {
+      b.y -= b.speed;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.radius, 0, 2 * Math.PI);
+      ctx.fillStyle = b.color;
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.stroke();
+      if(b.y + b.radius < 0) balloons.splice(i, 1);
+    });
+    requestAnimationFrame(animateBalloons);
+  }
+  function launchBalloons(){
+    const interval = setInterval(() => { createBalloon(); }, 200);
+    setTimeout(() => clearInterval(interval), 3000);
+    animateBalloons();
+  }
+</script>
+
+</body>
+</html>
